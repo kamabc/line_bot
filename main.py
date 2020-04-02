@@ -167,7 +167,7 @@ def handle_message(event):
         elif user_info['param'] == 9:
             # 有効な入力か
             user_msg = re.sub(r'\D', '', user_msg)
-            if (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
+            if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
                 user_info['conditions']['TEMPERATURE'] = user_msg / 10
 
                 msg = '朝の体調チェックが終了しました！お疲れさまでした。\n昼の体調チェックも忘れずにおねがいします'
