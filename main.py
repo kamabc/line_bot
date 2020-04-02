@@ -114,7 +114,7 @@ def handle_message(event):
                 msg = '登録が完了しました。'
 
         # 無効な入力
-        elif not(len(user_no) == 3) or not(user_no[0]+user_no[1]+user_no[2].isdigit()):
+        elif not(len(user_no) == 3) or not((user_no[0]+user_no[1]+user_no[2]).isdigit()):
             msg = '存在しない出席番号です。\nもう一度、有効な出席番号を入力してください。'
 
         else:
