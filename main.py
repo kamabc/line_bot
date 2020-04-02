@@ -151,25 +151,6 @@ def handle_message(event):
                 messages=msg
             )
 
-        elif user_info['param'] == 9:
-            # 有効な入力か
-            user_msg = re.sub(r'\D', '', user_msg)
-            if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
-                user_info['conditions']['TEMPERATURE'] = round(float(int(user_msg) / 10))
-
-                msg = '朝の体調チェックが終了しました！お疲れさまでした。\n昼の体調チェックも忘れずにおねがいします'
-                user_info['param'] = 100
-
-            else:
-                msg = '無効な入力です。数値ではない、もしくはあり得ない体温です。'
-                user_info['param'] -= 1
-
-            api.push_message(
-                user_id,
-                TextSendMessage(text=msg)
-            )
-
-        # 逆やん家！
         elif user_info['param'] == 8:
             # 前のやつの処理
             if re.fullmatch('はい', user_msg):
@@ -183,21 +164,27 @@ def handle_message(event):
 
             user_info['param'] += 1
 
+        elif user_info['param'] == 9:
+            # 有効な入力か
+            user_msg = re.sub(r'\D', '', user_msg)
+            if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
+                user_info['conditions']['TEMPERATURE'] = round(float(int(user_msg) / 10))
 
+                msg = '朝の体調チェックが終了しました！お疲れさまでした。\n昼の体調チェックも忘れずにおねがいします'
+                user_info['param'] = 100
 
+            else:
+                msg = '無効な入力です。数値ではない、もしくはあり得ない体温です。\n\n' + tempr_question
+
+            api.push_message(
+                user_id,
+                TextSendMessage(text=msg)
+            )
 
     # json保存
     links[user_id] = user_info
     with open(LINKS_JSON, 'w', encoding='utf-8') as f:
         json.dump(links, f)
-
-
-
-
-
-
-
-
 
 # 動かすとこ
 if __name__ == '__main__':
