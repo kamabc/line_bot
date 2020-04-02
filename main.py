@@ -84,7 +84,7 @@ def handle_message(event):
 
         # 有効な入力
         if (len(user_no) == 3) and ((user_no[0]+user_no[1]+user_no[2]).isdecimal()) and (1 <= int(user_no[0]) <= 3) and (1 <= int(user_no[1]) <= 6) and (1 <= int(user_no[2]) <= 40):
-            user_no = '{0}年{1}組{2}番'.format(user_no[0], user_no[1], user_no[2])
+            user_no = '{0}-{1}-{2}'.format(user_no[0], user_no[1], user_no[2])
 
             # かぶった時
             if user_no in links.values():
@@ -184,18 +184,18 @@ def handle_message(event):
     # コマンドラインに出力
     if user_msg == os.environ['SECRET_WORD']:
         infos = [] # infoに複数形ありましぇええええんｗｗｗ
-        fmt = '| {0:>12} | {1:>18} | {2:>8}'
+        fmt = '| {0:>6} | {1:>18} | {2:>6} |'
         # 先に情報を取得
         for v in links.values():
             # info = [grade, class, num, no, symptoms, temperature]
-            info = {'grade':v['no'][0], 'class':v['no'][2], 'num':v['no'][4:-1], 'no':v['no'], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
+            info = {'grade':v['no'][0], 'class':v['no'][2], 'num':v['no'][4:], 'no':v['no'], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
             if not(info['symptoms'] == []) or (37.5 <= info['temperature']): infos.append(info)
 
-        infos.sort(key=lambda x: (x['grade'], x['class'], x['no']))
+        infos.sort(key=lambda x: (x['grade'], x['class'], x['num']))
 
         print('----------------------------------------------------------------')
-        print(fmt.format('出席番号', '症状一覧', '体温'))
-        for info in infos: print(fmt.format(info['no'], ','.join(map(str, info['symptoms'])), str(info['temperature'])))
+        print(fmt.format('NO', 'SYMPTOMS', 'TEMP'), end='')
+        for info in infos: print(fmt.format(info['no'], ','.join(map(str, info['symptoms'])), str(info['temperature'])), end='')
 
 
 # 動かすとこ
