@@ -129,7 +129,7 @@ def handle_message(event):
 
         # 朝のやつ
         if 1 <= user_param <= 8:
-            msg = TextSendMessage(text=choice_questions[user_param - 1], quick_reply=QuickReply(items=items))
+            msg = TextSendMessage(text=choice_questions[user_param - 1], quick_reply=QuickReply(items=choices))
 
             # 変人
             api.reply_message(
