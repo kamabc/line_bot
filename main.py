@@ -151,7 +151,7 @@ def handle_message(event):
         elif user_info['param'] == 8:
             # 前のやつの処理
             if re.fullmatch('はい', user_msg):
-                user_info['symptoms'].add(user_info['param'] - 1)
+                user_info['symptoms'].append(user_info['param'] - 1)
 
             msg = tempr_question
             api.push_message(
