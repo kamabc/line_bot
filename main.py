@@ -151,19 +151,6 @@ def handle_message(event):
                 messages=msg
             )
 
-        elif user_info['param'] == 8:
-            # 前のやつの処理
-            if re.fullmatch('はい', user_msg):
-                user_info['conditions'][user_info['param'] - 1] = 'A'
-
-            msg = tempr_question
-            api.push_message(
-                user_id,
-                TextSendMessage(text=msg)
-            )
-
-            user_info['param'] += 1
-
         elif user_info['param'] == 9:
             # 有効な入力か
             user_msg = re.sub(r'\D', '', user_msg)
@@ -181,6 +168,20 @@ def handle_message(event):
                 user_id,
                 TextSendMessage(text=msg)
             )
+
+        # 逆やん家！
+        elif user_info['param'] == 8:
+            # 前のやつの処理
+            if re.fullmatch('はい', user_msg):
+                user_info['conditions'][user_info['param'] - 1] = 'A'
+
+            msg = tempr_question
+            api.push_message(
+                user_id,
+                TextSendMessage(text=msg)
+            )
+
+            user_info['param'] += 1
 
 
 
