@@ -99,9 +99,6 @@ def handle_message(event):
                 user_info['state'] = 'linked'
                 msg = '登録が完了しました。'
 
-                with open(LINKS_JSON, 'w', encoding='utf-8') as f:
-                    json.dump(links, f)
-
         else:
             msg = '出席番号を、次の(例)のように入力してください。\n(例):「1年C組27番」の場合\n 1-3-27 と入力\n(例):「2年E組9番」の場合\n 2-5-9と入力'
 
@@ -113,15 +110,16 @@ def handle_message(event):
 
     # リンクしてるとき
     elif user_info['state'] == 'linked':
-        if (user_msg == '体調チェック') and (user_info['param'] % 100 == 0):
+        user_param = user_info['param']
+        if (user_msg == '体調チェック') and (user_param % 100 == 0):
             # 時刻によって分岐
             if 4 <= now.hour < 24:
                 msg = '朝の健康チェックを開始します。'
-                user_info['param'] += 1
+                user_param += 1
 
             elif 11 <= now.hour < 13:
                 msg = '昼の健康チェックを開始します。'
-                user_info['param'] += 1
+                user_param += 1
 
             # 変身！
             api.reply_message(
@@ -130,8 +128,8 @@ def handle_message(event):
             )
 
         # 朝のやつ
-        if 1 <= user_info['param'] <= 8:
-            msg = TextSendMessage(text=choice_questions[user_info['param'] - 1], quick_reply=QuickReply(items=items))
+        if 1 <= user_param <= 8:
+            msg = TextSendMessage(text=choice_questions[user_param - 1], quick_reply=QuickReply(items=items))
 
             # 変人
             api.reply_message(
@@ -141,9 +139,13 @@ def handle_message(event):
 
             # 返信がyesnoか
             if re.fullmatch(r'はい|いいえ', user_msg):
-                user_info['param'] += 1
+                user_param += 1
                 if re.fullmatch('はい', user_msg):
-                    user_info['conditions'][user_info['param'] - 1] = 'True'
+                    user_info['conditions'][user_param - 1] = 'True'
+
+    # json保存
+    with open(LINKS_JSON, 'w', encoding='utf-8') as f:
+        json.dump(links, f)
 
 
 
