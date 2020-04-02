@@ -114,11 +114,11 @@ def handle_message(event):
             # 時刻によって分岐
             if 4 <= now.hour < 24:
                 msg = '朝の健康チェックを開始します。'
-                user_info[param] += 1
+                user_info['param'] += 1
 
             elif 11 <= now.hour < 13:
                 msg = '昼の健康チェックを開始します。'
-                user_info[param] += 1
+                user_info['param'] += 1
 
             # 変身！
             api.reply_message(
@@ -138,9 +138,9 @@ def handle_message(event):
 
             # 返信がyesnoか
             if re.fullmatch(r'はい|いいえ', user_msg):
-                user_param += 1
+                user_info['param'] += 1
                 if re.fullmatch('はい', user_msg):
-                    user_info['conditions'][user_info[param] - 1] = 'True'
+                    user_info['conditions'][user_info['param'] - 1] = 'True'
 
     # json保存
     links[user_id] = user_info
