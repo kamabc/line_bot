@@ -33,6 +33,7 @@ handler = WebhookHandler(CHANNEL_SECRET)
 choices = ['はい', 'いいえ']
 choices = [QuickReplyButton(action=MessageAction(label=f'{choice}', text=f'{choice}')) for choice in choices]
 choice_questions = [
+            'dummy',
             'のどが痛いですか？',
             '咳はでますか？',
             '痰(たん)がでる、あるいはからんだりしますか？',
@@ -71,6 +72,7 @@ def handle_message(event):
     # json読み込み
     with open(LINKS_JSON, 'r', encoding='utf-8') as f:
         links = json.load(f)
+        print(links)
 
     # jsonの中になかったらとりま
     if not(user_id in links.keys()):
@@ -118,7 +120,7 @@ def handle_message(event):
 
             elif 11 <= now.hour < 13:
                 msg = '昼の健康チェックを開始します。'
-                user_info['param'] += 1
+                user_info['param'] += 1 nj
 
             # 変身！
             api.reply_message(
@@ -128,7 +130,7 @@ def handle_message(event):
 
         # 朝のやつ
         if 1 <= user_info['param'] <= 8:
-            msg = TextSendMessage(text=choice_questions[user_info['param'] - 1], quick_reply=QuickReply(items=choices))
+            msg = TextSendMessage(text=choice_questions[user_info['param']], quick_reply=QuickReply(items=choices))
 
             # 変人
             api.push_message(
