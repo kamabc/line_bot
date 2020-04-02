@@ -94,40 +94,39 @@ def handle_message(event):
     # studentのstateで分岐
     # 出席番号危機だす
     if student.state == 'linking':
-        while True:
-            # 番号
-            user_no = list(map(lambda str: re.sub(r'\D', '', str), user_msg.split('-')))
-            print(user_no)
+        # 番号
+        user_no = list(map(lambda str: re.sub(r'\D', '', str), user_msg.split('-')))
+        print(user_no)
 
-            # 有効な入力
-            if (len(user_no) == 3) and ((user_no[0]+user_no[1]+user_no[2]).isdigit()) and (1 <= int(user_no[0]) <= 3) and (1 <= int(user_no[1]) <= 6) and (1 <= int(user_no[2]) <= 40):
-                user_no = '-'.join(user_no)
+        # 有効な入力
+        if (len(user_no) == 3) and ((user_no[0]+user_no[1]+user_no[2]).isdigit()) and (1 <= int(user_no[0]) <= 3) and (1 <= int(user_no[1]) <= 6) and (1 <= int(user_no[2]) <= 40):
+            user_no = '-'.join(user_no)
 
-                # かぶった時
-                if user_no in links.values():
-                    msg = '既に登録されている出席番号です。別の出席番号を入力してください。'
-                    continue
+            # かぶった時
+            if user_no in links.values():
+                msg = '既に登録されている出席番号です。別の出席番号を入力してください。'
 
-                # 登録
-                else:
-                    student.no = user_no
-                    student.state = 'linked'
-                    links[student.line] = student.no
-                    msg = '登録が完了しました。'
-
-                    break
-
-            # 無効な入力
-            elif not(len(user_no) == 3) or not(user_no[0]+user_no[1]+user_no[2].isdigit()):
-                msg = '存在しない出席番号です。\nもう一度、有効な出席番号を入力してください。'
-
+            # 登録
             else:
-                msg = '出席番号を、次の(例)のように入力してください。\n(例):「1年C組27番」の場合\n─────[1-3-27]と入力\n(例):「2年E組9番」の場合\n─────[2-5-09]と入力'
+                student.no = user_no
+                student.state = 'linked'
+                links[student.line] = student.no
+                msg = '登録が完了しました。'
 
-            api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=msg)
-            )
+                break
+
+        # 無効な入力
+        elif not(len(user_no) == 3) or not(user_no[0]+user_no[1]+user_no[2].isdigit()):
+            msg = '存在しない出席番号です。\nもう一度、有効な出席番号を入力してください。'
+
+        else:
+            msg = '出席番号を、次の(例)のように入力してください。\n(例):「1年C組27番」の場合\n─────[1-3-27]と入力\n(例):「2年E組9番」の場合\n─────[2-5-09]と入力'
+
+        # 変身！
+        api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg)
+        )
 
 
 
