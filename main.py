@@ -43,7 +43,7 @@ choice_questions = [
             'いつもとは違った息苦しさがありますか？',
             '一緒に住んでいる家族の中で、具合の悪い人はいますか？',
             ]
-tempr_questions = ['今の体温を摂氏(℃)単位で入力して下さい。小数点以下1位までお願いします。\n(例)36.2℃の場合\n 36.2 と入力']
+tempr_question = '今の体温を摂氏(℃)単位で入力して下さい。小数点以下1位までお願いします。\n(例)36.2℃の場合\n 36.2 と入力'
 
 @app.route('/callback', methods=['Post'])
 def callback():
@@ -88,7 +88,7 @@ def handle_message(event):
         user_no = list(map(lambda str: re.sub(r'\D', '', str), user_msg.split('-')))
 
         # 有効な入力
-        if (len(user_no) == 3) and ((user_no[0]+user_no[1]+user_no[2]).isdigit()) and (1 <= int(user_no[0]) <= 3) and (1 <= int(user_no[1]) <= 6) and (1 <= int(user_no[2]) <= 40):
+        if (len(user_no) == 3) and ((user_no[0]+user_no[1]+user_no[2]).isdecimal()) and (1 <= int(user_no[0]) <= 3) and (1 <= int(user_no[1]) <= 6) and (1 <= int(user_no[2]) <= 40):
             user_no = '-'.join(user_no)
 
             # かぶった時
@@ -129,12 +129,12 @@ def handle_message(event):
             )
 
         # 朝のやつ
-        if 1 <= user_info['param'] <= 8:
+        if 1 <= user_info['param'] < 8:
             if re.fullmatch(r'はい|いいえ', user_msg):
                 user_info['param'] += 1
                 if re.fullmatch('はい', user_msg):
-                    user_info['conditions'][user_info['param'] - 1] = 'True'
-                    
+                    user_info['conditions'][user_info['param'] - 1] = 'T'
+
             msg = TextSendMessage(text=choice_questions[user_info['param']], quick_reply=QuickReply(items=choices))
 
             # 変人
@@ -142,6 +142,37 @@ def handle_message(event):
                 user_id,
                 messages=msg
             )
+
+        elif user_info['param'] == 8:
+            # 前のやつの処理
+            if re.fullmatch('はい', user_msg):
+                user_info['conditions'][user_info['param'] - 1] = 'A'
+
+            msg = tempr_question
+            api.push_message(
+                user_id,
+                TextSendMessage(text=msg)
+            )
+
+        elif user_info['param'] == 9:
+            # 有効な入力か
+            user_msg = re.sub(r'\D', '', user_msg)
+            if (user_msg.isdecimal) and (300 <= user_msg <= 450):
+                user_info['conditions']['TEMPERATURE'] = user_msg / 10
+
+                msg = '朝の体調チェックが終了しました！お疲れさまでした。\n昼の体調チェックも忘れずにおねがいします'
+                user_info['param'] = 100
+
+            else:
+                msg = '無効な入力です。数値ではない、もしくはあり得ない体温です。'
+
+            api.push_message(
+                user_id,
+                TextSendMessage(text=msg)
+            )
+
+
+
 
     # json保存
     links[user_id] = user_info
