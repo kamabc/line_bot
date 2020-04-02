@@ -114,7 +114,7 @@ def handle_message(event):
                 msg = '登録が完了しました。'
 
                 with open(LINKS_JSON, 'w', encoding='utf-8') as f:
-                    f.write(links)
+                    json.dump(links, f)
 
         # 無効な入力
         elif not(len(user_no) == 3) or not((user_no[0]+user_no[1]+user_no[2]).isdigit()):
