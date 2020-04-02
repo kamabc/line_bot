@@ -43,7 +43,7 @@ choice_questions = [
             'いつもとは違った息苦しさがありますか？',
             '一緒に住んでいる家族の中で、具合の悪い人はいますか？',
             ]
-tempr_question = '今の体温を摂氏(℃)単位で入力して下さい。小数点以下1位までお願いします。\n(例)36.2℃の場合\n 36.2 と入力'
+tempr_question = '今の体温を摂氏(℃)単位で入力して下さい。小数点以下1位までお願いします。\n(例):36.2℃の場合\n 36.2 と入力\n(例):37.0℃の場合\n 37.0 と入力'
 
 @app.route('/callback', methods=['Post'])
 def callback():
@@ -168,7 +168,7 @@ def handle_message(event):
             # 有効な入力か
             user_msg = re.sub(r'\D', '', user_msg)
             if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
-                user_info['conditions']['TEMPERATURE'] = user_msg / 10
+                user_info['conditions']['TEMPERATURE'] = round(float(int(user_msg) / 10))
 
                 msg = '朝の体調チェックが終了しました！お疲れさまでした。\n昼の体調チェックも忘れずにおねがいします'
                 user_info['param'] = 100
