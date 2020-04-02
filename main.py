@@ -69,7 +69,6 @@ def handle_message(event):
     # json読み込み
     with open(LINKS_JSON, 'r', encoding='utf-8') as f:
         links = json.load(f)
-        print(links)
 
     # jsonの中になかったらとりま
     if not(user_id in links.keys()):
@@ -186,7 +185,7 @@ def handle_message(event):
     # コマンドラインに出力
     if user_msg == os.environ['SECRET_WORD']:
         infos = [] # infoに複数形ありましぇええええんｗｗｗ
-        fmt = '| {0:>16} | {1:>16} | {2:>5} |'
+        fmt = '| {0:>18} | {1:>18} | {2:>8} |'
         # 先に情報を取得
         for v in links.values():
             # info = [grade, class, num, no, symptoms, temperature]
