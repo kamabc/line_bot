@@ -135,6 +135,14 @@ def handle_message(event):
                 if re.fullmatch('はい', user_msg):
                     user_info['conditions'][user_info['param'] - 1] = 'T'
 
+            else:
+                error_msg = 'はい か いいえ で答えてください。'
+                api.push_message(
+                    user_id,
+                    TextSendMessage(text=error_msg)
+                )
+
+
             msg = TextSendMessage(text=choice_questions[user_info['param']], quick_reply=QuickReply(items=choices))
 
             # 変人
@@ -154,6 +162,8 @@ def handle_message(event):
                 TextSendMessage(text=msg)
             )
 
+            user_info['param'] += 1
+
         elif user_info['param'] == 9:
             # 有効な入力か
             user_msg = re.sub(r'\D', '', user_msg)
@@ -165,6 +175,7 @@ def handle_message(event):
 
             else:
                 msg = '無効な入力です。数値ではない、もしくはあり得ない体温です。'
+                user_info['param'] -= 1
 
             api.push_message(
                 user_id,
