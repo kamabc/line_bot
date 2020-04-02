@@ -66,6 +66,7 @@ def handle_message(event):
     # 変数
     user_id = event.source.user_id
     user_msg = event.message.text
+    now = datetime.datetime.now()
 
     # json読み込み
     with open(LINKS_JSON, 'r', encoding='utf-8') as f:
