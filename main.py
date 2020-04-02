@@ -36,7 +36,6 @@ choice_questions = [
             '痰(たん)がでる、あるいはからんだりしますか？',
             '鼻水がたり、鼻づまりがあったりしますか？',
             '体がだるい、重い等の症状はありますか？',
-            '37.5℃以上の発熱がありますか？',
             'いつもとは違った息苦しさがありますか？',
             '一緒に住んでいる家族の中で、具合の悪い人はいますか？',
             ]
@@ -125,7 +124,7 @@ def handle_message(event):
             )
 
         # 朝のやつ
-        if 1 <= user_info['param'] < 8:
+        if 1 <= user_info['param'] < 7:
             if re.fullmatch(r'はい|いいえ', user_msg):
                 user_info['param'] += 1
                 if re.fullmatch('はい', user_msg):
@@ -147,10 +146,10 @@ def handle_message(event):
                 messages=msg
             )
 
-        elif user_info['param'] == 8:
+        elif user_info['param'] == 7:
             # 前のやつの処理
             if re.fullmatch('はい', user_msg):
-                user_info['symptoms'].append(user_info['param'] - 1)
+                user_info['symptoms'].append(user_info['param'])
 
             msg = tempr_question
             api.push_message(
@@ -160,7 +159,7 @@ def handle_message(event):
 
             user_info['param'] += 1
 
-        elif user_info['param'] == 9:
+        elif user_info['param'] == 8:
             # 有効な入力か
             user_msg = re.sub(r'\D', '', user_msg)
             if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
@@ -185,7 +184,7 @@ def handle_message(event):
     # コマンドラインに出力
     if user_msg == os.environ['SECRET_WORD']:
         infos = [] # infoに複数形ありましぇええええんｗｗｗ
-        fmt = '| {0:>18} | {1:>18} | {2:>8} |'
+        fmt = '| {0:>12} | {1:>18} | {2:>8}'
         # 先に情報を取得
         for v in links.values():
             # info = [grade, class, num, no, symptoms, temperature]
