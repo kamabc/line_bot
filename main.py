@@ -12,7 +12,7 @@ from linebot.exceptions import (
 from linebot.models import(
     MessageEvent, MessageAction, TextMessage, TextSendMessage, TemplateSendMessage, ButtonsTemplate, QuickReply, QuickReplyButton
 )
-import os, json, datetime, re, operator
+import os, json, datetime, re
 
 
 # ファイル類
@@ -192,11 +192,12 @@ def handle_message(event):
             info = {'grade':v['no'][0], 'class':v['no'][2], 'no':v['no'][4:], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
             infos.append(info)
 
-        infos.sort(key=operator.attrgetter('grade', 'class', 'no'))
+        infos.sort(key=lambda x: (x['grade'], x['class'], x['no']))
 
         print('----------------------------------------------------------------')
         print('体調情報一覧')
-        print(infos)
+        for info in infos:
+            print(infos)
 
 
 # 動かすとこ
