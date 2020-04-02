@@ -186,18 +186,19 @@ def handle_message(event):
     # コマンドラインに出力
     if user_msg == os.environ['SECRET_WORD']:
         infos = [] # infoに複数形ありましぇええええんｗｗｗ
+        fmt = '| {0:>10} | {1:>16} | {2:>5} |'
         # 先に情報を取得
         for v in links.values():
-            # info = [grade, class, no, symptoms, temperature]
-            info = {'grade':v['no'][0], 'class':v['no'][2], 'no':v['no'][4:], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
-            infos.append(info)
+            # info = [grade, class, num, no, symptoms, temperature]
+            info = {'grade':v['no'][0], 'class':v['no'][2], 'num':v['no'][4:-1], no:v['no'], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
+            if not(info['symptoms'] == []) and (37.5 <= info[temperature]): infos.append(info)
 
         infos.sort(key=lambda x: (x['grade'], x['class'], x['no']))
 
         print('----------------------------------------------------------------')
         print('体調情報一覧')
         for info in infos:
-            print(infos)
+            print(fmt.format(info['no'], info['symptoms'], info[temperature]))
 
 
 # 動かすとこ
