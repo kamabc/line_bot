@@ -191,14 +191,14 @@ def handle_message(event):
         for v in links.values():
             # info = [grade, class, num, no, symptoms, temperature]
             info = {'grade':v['no'][0], 'class':v['no'][2], 'num':v['no'][4:-1], 'no':v['no'], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
-            if not(info['symptoms'] == []) and (37.5 <= info[temperature]): infos.append(info)
+            if not(info['symptoms'] == []) or (37.5 <= info['temperature']): infos.append(info)
 
         infos.sort(key=lambda x: (x['grade'], x['class'], x['no']))
 
         print('----------------------------------------------------------------')
         print('体調情報一覧')
-        for info in infos:
-            print(fmt.format(info['no'], info['symptoms'], info[temperature]))
+        print(fmt.format('出席番号', '症状一覧', '体温'))
+        for info in infos: print(fmt.format(info['no'], info['symptoms'], info['temperature']))
 
 
 # 動かすとこ
