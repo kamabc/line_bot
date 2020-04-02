@@ -165,7 +165,7 @@ def handle_message(event):
             # 有効な入力か
             user_msg = re.sub(r'\D', '', user_msg)
             if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
-                user_info['temperature'] = round(float(int(user_msg) / 10))
+                user_info['temperature'] = round(float(int(user_msg) / 10), 1)
 
                 msg = '朝の体調チェックが終了しました！お疲れさまでした。\n昼の体調チェックも忘れずにおねがいします'
                 user_info['param'] = 100
@@ -186,7 +186,7 @@ def handle_message(event):
     # コマンドラインに出力
     if user_msg == os.environ['SECRET_WORD']:
         infos = [] # infoに複数形ありましぇええええんｗｗｗ
-        fmt = '| {0:>10} | {1:>16} | {2:>5} |'
+        fmt = '| {0:>16} | {1:>16} | {2:>5} |'
         # 先に情報を取得
         for v in links.values():
             # info = [grade, class, num, no, symptoms, temperature]
