@@ -1,5 +1,5 @@
 # link の形式
-# {line_id:{no:no, state:state, param:param, condition:{conditions}}}
+# {line_id:{no:no, state:state, param:param, symptoms:{symptoms}, temperature:temperature}}
 
 # インポートしよう。
 from flask import Flask, request, abort
@@ -12,10 +12,7 @@ from linebot.exceptions import (
 from linebot.models import(
     MessageEvent, MessageAction, TextMessage, TextSendMessage, TemplateSendMessage, ButtonsTemplate, QuickReply, QuickReplyButton
 )
-import os
-import json
-import datetime
-import re
+import os, json, datetime, re, operator
 
 
 # ファイル類
@@ -76,7 +73,7 @@ def handle_message(event):
 
     # jsonの中になかったらとりま
     if not(user_id in links.keys()):
-        links[user_id] = {'no':None, 'state':'linking', 'param':0, 'conditions':{}}
+        links[user_id] = {'no':None, 'state':'linking', 'param':0, 'symptoms':[], 'temperature':0}
 
     # ここで変数
     user_info = links[user_id]
@@ -89,7 +86,7 @@ def handle_message(event):
 
         # 有効な入力
         if (len(user_no) == 3) and ((user_no[0]+user_no[1]+user_no[2]).isdecimal()) and (1 <= int(user_no[0]) <= 3) and (1 <= int(user_no[1]) <= 6) and (1 <= int(user_no[2]) <= 40):
-            user_no = '-'.join(user_no)
+            user_no = '{0}年{1}組{2}番'.format(user_no[0], user_no[1], user_no[2])
 
             # かぶった時
             if user_no in links.values():
@@ -133,7 +130,7 @@ def handle_message(event):
             if re.fullmatch(r'はい|いいえ', user_msg):
                 user_info['param'] += 1
                 if re.fullmatch('はい', user_msg):
-                    user_info['conditions'][user_info['param'] - 1] = 'T'
+                    user_info['symptoms'].append(user_info['param'] - 1)
 
             else:
                 error_msg = 'はい か いいえ で答えてください。'
@@ -154,7 +151,7 @@ def handle_message(event):
         elif user_info['param'] == 8:
             # 前のやつの処理
             if re.fullmatch('はい', user_msg):
-                user_info['conditions'][user_info['param'] - 1] = 'A'
+                user_info['symptoms'].add(user_info['param'] - 1)
 
             msg = tempr_question
             api.push_message(
@@ -168,7 +165,7 @@ def handle_message(event):
             # 有効な入力か
             user_msg = re.sub(r'\D', '', user_msg)
             if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
-                user_info['conditions']['TEMPERATURE'] = round(float(int(user_msg) / 10))
+                user_info['temperature'] = round(float(int(user_msg) / 10))
 
                 msg = '朝の体調チェックが終了しました！お疲れさまでした。\n昼の体調チェックも忘れずにおねがいします'
                 user_info['param'] = 100
@@ -185,6 +182,22 @@ def handle_message(event):
     links[user_id] = user_info
     with open(LINKS_JSON, 'w', encoding='utf-8') as f:
         json.dump(links, f)
+
+    # コマンドラインに出力
+    if user_msg == os.environ['SECRET_WORD']:
+        infos = [] # infoに複数形ありましぇええええんｗｗｗ
+        # 先に情報を取得
+        for v in links.values():
+            # info = [grade, class, no, symptoms, temperature]
+            info = {'grade':v['no'][0], 'class':v['no'][2], 'no':v['no'][4:], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
+            infos.append(info)
+
+        infos.sort(key=operator.attrgetter('grade', 'class', 'no'))
+
+        print('----------------------------------------------------------------')
+        print('体調情報一覧')
+        print(infos)
+
 
 # 動かすとこ
 if __name__ == '__main__':
