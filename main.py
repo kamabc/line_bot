@@ -31,6 +31,7 @@ handler = WebhookHandler(CHANNEL_SECRET)
 
 # 質問
 choices = ['はい', 'いいえ']
+choices = [QuickReplyButton(action=MessageAction(label=f'{choice}', text=f'{choice}')) for choice in choices]
 choice_questions = [
             'のどが痛いですか？',
             '咳はでますか？',
@@ -113,15 +114,37 @@ def handle_message(event):
     elif user_info['state'] == 'linked':
         if (user_msg == '体調チェック') and (user_info['param'] % 100 == 0):
             # 時刻によって分岐
-            if 4 <= now.hour <= 9:
+            if 4 <= now.hour < 9:
                 msg = '朝の健康チェックを開始します。'
                 user_info['param'] += 1
 
-            elif 11 <= now.hour <= 13:
+            elif 11 <= now.hour < 13:
                 msg = '昼の健康チェックを開始します。'
                 user_info['param'] += 1
 
-            # 朝のやつ
+            # 変身！
+            api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=msg)
+            )
+
+        # 朝のやつ
+        if 1 <= user_info['param'] <= 8:
+            msg = TextSendMessage(text=choice_questions[user_info['param'] - 1], quick_reply=QuickReply(items=items))
+
+            # 変人
+            api.reply_message(
+                event.reply_token,
+                messages=msg
+            )
+
+            # 返信がyesnoか
+            if re.fullmatch(r'はい|いいえ', user_msg):
+                user_info['param'] += 1
+
+
+
+
 
 
 
