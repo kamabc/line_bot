@@ -110,16 +110,15 @@ def handle_message(event):
 
     # リンクしてるとき
     elif user_info['state'] == 'linked':
-        user_param = user_info['param']
-        if (user_msg == '体調チェック') and (user_param % 100 == 0):
+        if (user_msg == '体調チェック') and (user_info['param'] % 100 == 0):
             # 時刻によって分岐
             if 4 <= now.hour < 24:
                 msg = '朝の健康チェックを開始します。'
-                user_param += 1
+                user_info[param] += 1
 
             elif 11 <= now.hour < 13:
                 msg = '昼の健康チェックを開始します。'
-                user_param += 1
+                user_info[param] += 1
 
             # 変身！
             api.reply_message(
@@ -128,8 +127,8 @@ def handle_message(event):
             )
 
         # 朝のやつ
-        if 1 <= user_param <= 8:
-            msg = TextSendMessage(text=choice_questions[user_param - 1], quick_reply=QuickReply(items=choices))
+        if 1 <= user_info['param'] <= 8:
+            msg = TextSendMessage(text=choice_questions[user_info['param'] - 1], quick_reply=QuickReply(items=choices))
 
             # 変人
             api.push_message(
@@ -141,9 +140,10 @@ def handle_message(event):
             if re.fullmatch(r'はい|いいえ', user_msg):
                 user_param += 1
                 if re.fullmatch('はい', user_msg):
-                    user_info['conditions'][user_param - 1] = 'True'
+                    user_info['conditions'][user_info[param] - 1] = 'True'
 
     # json保存
+    links[user_id] = user_info
     with open(LINKS_JSON, 'w', encoding='utf-8') as f:
         json.dump(links, f)
 
