@@ -132,8 +132,8 @@ def handle_message(event):
             msg = TextSendMessage(text=choice_questions[user_param - 1], quick_reply=QuickReply(items=choices))
 
             # 変人
-            api.reply_message(
-                event.reply_token,
+            api.push_message(
+                user_id,
                 messages=msg
             )
 
