@@ -100,7 +100,7 @@ def handle_message(event):
             print(user_no)
 
             # 有効な入力
-            if (len(user_no) == 3) and (user_no[0]+user_no[1]+user_no[2].isdigit()) and (1 <= int(user_no[0]) <= 3) and (1 <= int(user_no[1]) <= 6) and (1 <= int(user_no[2]) <= 40):
+            if (len(user_no) == 3) and ((user_no[0]+user_no[1]+user_no[2]).isdigit()) and (1 <= int(user_no[0]) <= 3) and (1 <= int(user_no[1]) <= 6) and (1 <= int(user_no[2]) <= 40):
                 user_no = '-'.join(user_no)
 
                 # かぶった時
