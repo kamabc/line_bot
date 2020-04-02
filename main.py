@@ -141,6 +141,8 @@ def handle_message(event):
             # 返信がyesnoか
             if re.fullmatch(r'はい|いいえ', user_msg):
                 user_info['param'] += 1
+                if re.fullmatch('はい', user_msg):
+                    user_info['conditions'][user_info['param'] - 1] = 'True'
 
 
 
