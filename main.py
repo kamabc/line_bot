@@ -190,7 +190,7 @@ def handle_message(event):
         # 先に情報を取得
         for v in links.values():
             # info = [grade, class, num, no, symptoms, temperature]
-            info = {'grade':v['no'][0], 'class':v['no'][2], 'num':v['no'][4:-1], no:v['no'], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
+            info = {'grade':v['no'][0], 'class':v['no'][2], 'num':v['no'][4:-1], 'no':v['no'], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
             if not(info['symptoms'] == []) and (37.5 <= info[temperature]): infos.append(info)
 
         infos.sort(key=lambda x: (x['grade'], x['class'], x['no']))
