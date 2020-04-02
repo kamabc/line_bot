@@ -114,7 +114,7 @@ def handle_message(event):
     elif user_info['state'] == 'linked':
         if (user_msg == '体調チェック') and (user_info['param'] % 100 == 0):
             # 時刻によって分岐
-            if 4 <= now.hour < 9:
+            if 4 <= now.hour < 24:
                 msg = '朝の健康チェックを開始します。'
                 user_info['param'] += 1
 
