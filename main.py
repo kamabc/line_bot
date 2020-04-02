@@ -130,6 +130,11 @@ def handle_message(event):
 
         # 朝のやつ
         if 1 <= user_info['param'] <= 8:
+            if re.fullmatch(r'はい|いいえ', user_msg):
+                user_info['param'] += 1
+                if re.fullmatch('はい', user_msg):
+                    user_info['conditions'][user_info['param'] - 1] = 'True'
+                    
             msg = TextSendMessage(text=choice_questions[user_info['param']], quick_reply=QuickReply(items=choices))
 
             # 変人
@@ -137,15 +142,6 @@ def handle_message(event):
                 user_id,
                 messages=msg
             )
-
-            # 最初のとき
-            if user_info['param'] == 1:
-                user_info['param'] += 1
-                
-            if re.fullmatch(r'はい|いいえ', user_msg):
-                user_info['param'] += 1
-                if re.fullmatch('はい', user_msg):
-                    user_info['conditions'][user_info['param'] - 1] = 'True'
 
     # json保存
     links[user_id] = user_info
