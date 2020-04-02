@@ -196,9 +196,8 @@ def handle_message(event):
         infos.sort(key=lambda x: (x['grade'], x['class'], x['no']))
 
         print('----------------------------------------------------------------')
-        print('体調情報一覧')
         print(fmt.format('出席番号', '症状一覧', '体温'))
-        for info in infos: print(fmt.format(info['no'], info['symptoms'], info['temperature']))
+        for info in infos: print(fmt.format(info['no'], ','.join(map(str, info['symptoms'])), str(info['temperature'])))
 
 
 # 動かすとこ
