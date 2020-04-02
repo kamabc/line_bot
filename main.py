@@ -113,12 +113,15 @@ def handle_message(event):
                 links[student.line] = student.no
                 msg = '登録が完了しました。'
 
+                with open(LINKS_JSON, 'w', encoding='utf-8') as f:
+                    f.write(links)
+
         # 無効な入力
         elif not(len(user_no) == 3) or not((user_no[0]+user_no[1]+user_no[2]).isdigit()):
             msg = '存在しない出席番号です。\nもう一度、有効な出席番号を入力してください。'
 
         else:
-            msg = '出席番号を、次の(例)のように入力してください。\n(例):「1年C組27番」の場合\n─────[1-3-27]と入力\n(例):「2年E組9番」の場合\n─────[2-5-09]と入力'
+            msg = '出席番号を、次の(例)のように入力してください。\n(例):「1年C組27番」の場合\n 1-3-27 と入力\n(例):「2年E組9番」の場合\n 2-5-9と入力'
 
         # 変身！
         api.reply_message(
