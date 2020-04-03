@@ -27,8 +27,6 @@ CHANNEL_SECRET = os.environ['CHANNEL_SECRET']
 # 初期ベクトルとパスワード
 JSON_CRYPTO_PASSWORD = os.environ['JSON_CRYPTO_PASSWORD']
 JSON_CRYPTO_IV = os.environ['JSON_CRYPTO_IV']
-JSON_CRYPTO_MODE = AES.MODE_CBC
-
 
 api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
@@ -69,7 +67,7 @@ def callback():
 def handle_message(event):
     # 変数
     user_id = event.source.user_id
-    user_id_coded = encrypt(user_id, JSON_CRYPTO_PASSWORD, JSON_CRYPTO_MODE, JSON_CRYPTO_IV)
+    user_id_coded = encrypt(user_id, JSON_CRYPTO_PASSWORD, JSON_CRYPTO_IV)
     user_msg = event.message.text
     now = datetime.datetime.now()
 
