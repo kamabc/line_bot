@@ -165,7 +165,7 @@ def handle_message(event):
             api.push_message(user_id, TextSendMessage(text=msg))
 
     # json保存
-    links[user_id] = user_info
+    links[user_id_coded] = user_info
     with open(LINKS_JSON, 'w', encoding='utf-8') as f:
         json.dump(links, f)
 
