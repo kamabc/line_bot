@@ -3,7 +3,7 @@ import main
 
 twische = BlockingScheduler()
 
-@twische.scheduled_job('interval',hours=1)
+@twische.scheduled_job('interval',minutes=20)
 def timed_job():
     main.reset_status()
 

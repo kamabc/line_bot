@@ -2,6 +2,8 @@
 # {line_id:{no:no, state:state, param:param, symptoms:{symptoms}, temperature:temperature}}
 
 # インポートしよう。
+import os, json, datetime, re
+from encoder import encrypt, decrypt
 from flask import Flask, request, abort
 from linebot import(
     LineBotApi, WebhookHandler
@@ -12,7 +14,6 @@ from linebot.exceptions import (
 from linebot.models import(
     MessageEvent, MessageAction, TextMessage, TextSendMessage, TemplateSendMessage, ButtonsTemplate, QuickReply, QuickReplyButton
 )
-import os, json, datetime, re
 
 
 # ファイル類
@@ -22,6 +23,12 @@ LINKS_JSON = os.path.join('json', 'links.json')
 app = Flask(__name__)
 CHANNEL_ACCESS_TOKEN = os.environ['CHANNEL_ACCESS_TOKEN']
 CHANNEL_SECRET = os.environ['CHANNEL_SECRET']
+
+# 初期ベクトルとパスワード
+JSON_CRYPTO_PASSWORD = os.environ['JSON_CRYPTO_PASSWORD']
+JSON_CRYPTO_IV = os.environ['JSON_CRYPTO_IV']
+JSON_CRYPTO_MODE = AES.MODE_CBC
+
 
 api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
@@ -62,6 +69,7 @@ def callback():
 def handle_message(event):
     # 変数
     user_id = event.source.user_id
+    user_id_coded = encrypt(user_id, JSON_CRYPTO_PASSWORD, JSON_CRYPTO_MODE, JSON_CRYPTO_IV)
     user_msg = event.message.text
     now = datetime.datetime.now()
 
@@ -70,11 +78,11 @@ def handle_message(event):
         links = json.load(f)
 
     # jsonの中になかったらとりま
-    if not(user_id in links.keys()):
-        links[user_id] = {'no':None, 'state':'linking', 'param':0, 'symptoms':[], 'temperature':0}
+    if not(user_id_coded in links.keys()):
+        links[user_id_coded] = {'no':0, 'state':'linking', 'param':0, 'symptoms':[], 'temperature':0}
 
     # ここで変数
-    user_info = links[user_id]
+    user_info = links[user_id_coded]
 
     # 生徒のstateで分岐
     # 出席番号危機だす
@@ -100,10 +108,7 @@ def handle_message(event):
             msg = '出席番号を、次の(例)のように入力してください。\n(例):「1年C組27番」の場合\n 1-3-27 と入力\n(例):「2年E組9番」の場合\n 2-5-9と入力'
 
         # 変身！
-        api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=msg)
-        )
+        api.reply_message(event.reply_token, TextSendMessage(text=msg))
 
     # リンクしてるとき
     elif user_info['state'] == 'linked':
@@ -111,20 +116,14 @@ def handle_message(event):
             # 時刻によって分岐
             if (4 <= now.hour < 9) and (user_info['param'] == 0):
                 msg = '朝の体調チェックを開始します。'
-                user_info['param'] += 1
-
-            elif (12 <= now.hour < 14) and (user_info['param'] == 100):
-                msg = '昼の体調チェックを開始します。'
+                user_info['symptoms'] = []
                 user_info['param'] += 1
 
             else:
                 msg = '体調チェックの時間外です。\n朝は4時から9時の間\n昼は12時から14時の間にお願いします。'
 
             # 変身！
-            api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=msg)
-            )
+            api.reply_message(event.reply_token, TextSendMessage(text=msg))
 
         # 朝のやつ
         if 1 <= user_info['param'] < 7:
@@ -135,19 +134,13 @@ def handle_message(event):
 
             else:
                 error_msg = 'はい か いいえ で答えてください。'
-                api.push_message(
-                    user_id,
-                    TextSendMessage(text=error_msg)
-                )
+                api.push_message(user_id, TextSendMessage(text=error_msg))
 
 
             msg = TextSendMessage(text=choice_questions[user_info['param']], quick_reply=QuickReply(items=choices))
 
             # 変人
-            api.push_message(
-                user_id,
-                messages=msg
-            )
+            api.push_message(user_id, messages=msg)
 
         elif user_info['param'] == 7:
             # 前のやつの処理
@@ -155,10 +148,7 @@ def handle_message(event):
                 user_info['symptoms'].append(user_info['param'])
 
             msg = tempr_question
-            api.push_message(
-                user_id,
-                TextSendMessage(text=msg)
-            )
+            api.push_message(user_id, TextSendMessage(text=msg))
 
             user_info['param'] += 1
 
@@ -168,44 +158,13 @@ def handle_message(event):
             if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
                 user_info['temperature'] = round(float(int(user_msg) / 10), 1)
 
-                msg = '朝の体調チェックが終了しました！お疲れさまでした。\n昼の体調チェックも忘れずにおねがいします\n\nこの体調チェックをやり直したい場合は、4時から9時までの間に、もう一度 体調チェックと入力してください。'
+                msg = '朝の体調チェックが終了しました！お疲れさまでした。\n明日も忘れずにおねがいします\n\nこの体調チェックをやり直したい場合は、4時から9時までの間に、もう一度 体調チェックと入力してください。'
                 user_info['param'] = 0
 
             else:
                 msg = '無効な入力です。数値ではない、もしくはあり得ない体温です。\n\n' + tempr_question
 
-            api.push_message(
-                user_id,
-                TextSendMessage(text=msg)
-            )
-
-        # 昼のやつ
-        elif user_info['param'] == 101:
-            msg = tempr_question
-            api.push_message(
-                user_id,
-                TextSendMessage(text=msg)
-            )
-
-            user_info['param'] += 1
-
-        elif user_info['param'] == 102:
-            # 有効な入力か
-            user_msg = re.sub(r'\D', '', user_msg)
-            if not(user_msg == '') and (user_msg.isdecimal) and (300 <= int(user_msg) <= 450):
-                user_info['temperature'] = round(float(int(user_msg) / 10), 1)
-
-                msg = '昼の体調チェックが終了しました！お疲れさまでした。\n\nこの体調チェックをやり直したい場合は、12時から14時までの間に、もう一度 体調チェック と入力してください・'
-                user_info['param'] = 100
-
-            else:
-                msg = '無効な入力です。数値ではない、もしくはあり得ない体温です。\n\n' + tempr_question
-
-            api.push_message(
-                user_id,
-                TextSendMessage(text=msg)
-            )
-
+            api.push_message(user_id, TextSendMessage(text=msg))
 
     # json保存
     links[user_id] = user_info
@@ -219,7 +178,7 @@ def handle_message(event):
         # 先に情報を取得
         for v in links.values():
             # info = [grade, class, num, no, symptoms, temperature]
-            if not(v['no'] == None): info = {'grade':v['no'][0], 'class':v['no'][2], 'num':v['no'][4:], 'no':v['no'], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
+            info = {'grade':v['no'][0], 'class':v['no'][2], 'num':v['no'][4:], 'no':v['no'], 'symptoms':v['symptoms'], 'temperature':v['temperature']}
             if not(info['symptoms'] == []) or (37.5 <= info['temperature']): infos.append(info)
 
         infos.sort(key=lambda x: (x['grade'], x['class'], x['num']))
@@ -227,11 +186,13 @@ def handle_message(event):
         print('----------------------------------------------------------------')
         print(fmt.format('NO', 'SYMPTOMS', 'TEMP'))
         for info in infos: print(fmt.format(info['no'], ','.join(map(str, info['symptoms'])), str(info['temperature'])))
+        print('----------------------------------------------------------------')
 
     elif user_msg == os.environ['SECRET_WORD_BUTTERFLY']:
         print(links)
 
 # ステータスをリセット
+@app.route('/')
 def reset_status():
     now = datetime.datetime.now()
 
@@ -244,6 +205,16 @@ def reset_status():
 
         with open(LINKS_JSON, 'w', encoding='utf-8') as f:
             json.dump(links, f)
+
+    elif now.hour == 11:
+        # json読み込み
+        with open(LINKS_JSON, 'r', encoding='utf-8') as f:
+            links = json.load(f)
+            for v in links.values():
+                v['param'] = 100
+
+                with open(LINKS_JSON, 'w', encoding='utf-8') as f:
+                    json.dump(links, f)
 
 
 # 動かすとこ
