@@ -1,4 +1,4 @@
-Flask==1.1.1
+Flask==2.2.5
 line-bot-sdk==1.16.0
 apscheduler==3.6.3
 pycrypto==2.6.1
